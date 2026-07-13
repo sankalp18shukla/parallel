@@ -1,26 +1,154 @@
-@import "tailwindcss";
-
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --font-body: var(--font-poppins), sans-serif;
+  --font-display: var(--font-serif), serif;
+
+  --color-bg: #050506;
+  --color-text: #ffffff;
+  --color-text-muted: rgba(255, 255, 255, 0.55);
+  --color-border: rgba(255, 255, 255, 0.14);
+
+  --glass-nav-bg: rgba(20, 24, 28, 0.45);
+  --glass-nav-blur: 20px;
+
+  --glass-card-bg: rgba(60, 90, 100, 0.14);
+  --glass-card-blur: 28px;
+  --glass-card-border: rgba(255, 255, 255, 0.16);
+
+  --glass-input-bg: rgba(255, 255, 255, 0.04);
+  --glass-input-blur: 8px;
+  --glass-input-border: rgba(255, 255, 255, 0.12);
+
+  --glass-warning-bg: rgba(20, 10, 10, 0.55);
+  --glass-warning-blur: 12px;
+  --glass-warning-border: rgba(255, 90, 90, 0.25);
+
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+body{
+  font-family:var(--font-body);
+  background: var(--color-bg);
+  color: var(--color-text);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: 400;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+.video-bg-wrap {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+}
+
+video-bg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+video-bg-tint {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.glass-nav {
+  background: var(--glass-nav-bg);
+  backdrop-filter: blur(var(--glass-nav-blur));
+  -webkit-backdrop-filter: blur(var(--glass-nav-blur));
+  border: 1px solid var(--color-border);
+}
+
+.glass-card {
+  background: var(--glass-card-bg);
+  backdrop-filter: blur(var(--glass-card-blur));
+  -webkit-backdrop-filter: blur(var(--glass-card-blur));
+  border: 1px solid var(--glass-card-border);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+  border-radius: 20px;
+}
+
+.glass-input {
+  background: var(--glass-input-bg);
+  backdrop-filter: blur(var(--glass-input-blur));
+  -webkit-backdrop-filter: blur(var(--glass-input-blur));
+  border: 1px solid var(--glass-input-border);
+  border-radius: 10px;
+}
+
+.glass-warning {
+  background: var(--glass-warning-bg);
+  backdrop-filter: blur(var(--glass-warning-blur));
+  -webkit-backdrop-filter: blur(var(--glass-warning-blur));
+  border: 1px solid var(--glass-warning-border);
+  border-radius: 12px;
+}
+
+.logo-white {
+  height: 28px;
+  width: auto;
+  filter: brightness(0), invert(1);
+}
+
+.btn {
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 100px;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  letter-spacing: 0.01em;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  background: transparent;
+  color: var(--color-text);
+  backdrop-filter: blur(4px);
+  transition: background 0.4s ease, color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s cubic-bezeir(0.16, 1, 0.3, 1), transform 0.15s ease;
+}
+
+.btn-sizer {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0.85rem 1.8rem;
+  opacity: 0;
+  pointer-events: none;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.btn-row {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0.85rem 1.8rem;
+  white-space: nowrap;
+  transition: transform 0.46s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-visible { transform: translateY(0%); }
+.btn:hover .btn-visible { transform: translateY(-105%);}
+.btn-ghost { transform: translateY(105%); }
+.btn:hover .btn-ghost { transform: translateY(0%);}
+.btn-icon { flex-shrink: 0; transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+.btn:hover .btn-icon {transform: translateX(3px);}
+.btn:hover {
+  background: #ffffff;
+  color: #111111;
+  border-color: #ffffff;
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.15);
+}
+.btn-full {
+  width: 100%;
+  justify-content: center;
+  text-transform: uppercase;
+  letter-spacing: 0.08rem;
+  font-size: 0.85rem;
 }
