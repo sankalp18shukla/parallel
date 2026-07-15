@@ -3,6 +3,8 @@
 import { useState } from "react";
 import Logo from "@/components/ui/Logo";
 import Button from "@/components/ui/Button";
+import VideoBackground from "@/components/layout/VideoBackground";
+
 
 export default function LoginPage(){
     const [mode, setMode] = useState<"login" | "signup">("login");
@@ -20,6 +22,7 @@ export default function LoginPage(){
 
     return (
         <main className="auth-page">
+            <VideoBackground src="/sky.mp4" />
             <div className="auth-card glass-card">
                 <Logo />
                 <h1 className= "auth-heading">

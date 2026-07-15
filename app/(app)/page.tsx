@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { ArrowRight, Video } from "lucide-react";
+import { ArrowRight, Video, Calendar, Users } from "lucide-react";
 import Button from "@/components/ui/Button";
 
 const MOCK_UPCOMING_MEET = {
@@ -15,7 +15,10 @@ export default function HomePage() {
     <div className="home-page">
       <h1 className="page-heading">Home</h1>
       {MOCK_UPCOMING_MEET.scheduled && (
-        <div className="glass-card home-card lined-up-card">
+        <div className="glass-card home-card accent-primary">
+          <div className="card-icon-badge">
+            <Calendar size={18} />
+          </div>
           <span className="card-tag">Lined up</span>
           <h2 className="card-title">
             You're on for {MOCK_UPCOMING_MEET.date}
@@ -25,7 +28,7 @@ export default function HomePage() {
             before.
           </p>
           <div className="card-icon-row">
-            <Video size={18} />
+            <Video size={16} />
             <span>Details coming to your email</span>
           </div>
         </div>
@@ -53,11 +56,14 @@ export default function HomePage() {
             ? "This isn't instant - we'll email you the second something clicks."
             : "Flip the switch and we'll go find someone interesting."}
         </p>
-        {searching && (
+        {searching && 
           <p className="live-counter"> 500+ actively looking for meets</p>
-        )}
+        }
       </div>
-      <div className="glass-card home-card">
+      <div className="glass-card home-card accent-secondary">
+        <div className="card-icon-badge">
+          <Users size={18} />
+        </div>
         <h2 className="card-title">{CONNECTS_FOUND} connects found</h2>
         <p className="card-subtext">People worth talking to. Go pick a time.</p>
         <Button href="/connects" icon={<ArrowRight size={16} />}>

@@ -63,7 +63,7 @@ h1, h2, h3 {
 .video-bg-tint {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.55);
+  transition: background 0.4s ease;
 }
 
 .glass-nav {
@@ -80,6 +80,7 @@ h1, h2, h3 {
     0 20px 60px rgba(0, 0, 0, 0.4),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
   border-radius: 20px;
+  position: relative;
 }
 .glass-input { background: var(--glass-input-bg); backdrop-filter: blur(var(--glass-input-blur)); -webkit-backdrop-filter: blur(var(--glass-input-blur)); border: 1px solid var(--glass-input-border); border-radius: 10px; }
 .glass-warning {
@@ -300,9 +301,8 @@ h1, h2, h3 {
 }
 .onboarding-checkbox input { margin-top: 3px; }
 
-.onboarding-card .logo-white {
-  align-self: flex-start;
-  margin-bottom: 4px;
+.app-shell {
+  
 }
 
 .bottom-nav {

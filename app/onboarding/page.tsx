@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Button from "@/components/ui/Button";
+import VideoBackground from "@/components/layout/VideoBackground";
 
 
 export default function OnboardingPage() {
@@ -27,6 +28,7 @@ export default function OnboardingPage() {
 
     return (
         <main className="onboarding-page">
+            <VideoBackground src="/sky.mp4" tint={0.4}/>
             <div className="glass-card onboarding-card">
                 <h1 className="page-heading">Tell us who you are</h1>
                 <p className="card-subtext"> So we can connect you with the best people. Employer names and handles stay private.</p>
