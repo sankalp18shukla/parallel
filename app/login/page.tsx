@@ -20,7 +20,7 @@ export default function LoginPage(){
 
     return (
         <main className="auth-page">
-            <div className="auth-card glass card">
+            <div className="auth-card glass-card">
                 <Logo />
                 <h1 className= "auth-heading">
                     {mode === "login" ? "Welcome back" : "Enter Parallel"}

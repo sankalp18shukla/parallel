@@ -1,65 +1,69 @@
-import Image from "next/image";
+"use client";
+import { useState } from "react";
+import { ArrowRight, Video } from "lucide-react";
+import Button from "@/components/ui/Button";
 
-export default function Home() {
+const MOCK_UPCOMING_MEET = {
+  scheduled: true,
+  date: "Thu, 17 Jul",
+  time: "6:30 PM",
+};
+const CONNECTS_FOUND = 3;
+export default function HomePage() {
+  const [searching, setSearching] = useState(true);
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <div className="home-page">
+      <h1 className="page-heading">Home</h1>
+      {MOCK_UPCOMING_MEET.scheduled && (
+        <div className="glass-card home-card lined-up-card">
+          <span className="card-tag">Lined up</span>
+          <h2 className="card-title">
+            You're on for {MOCK_UPCOMING_MEET.date}
+          </h2>
+          <p className="card-subtext">
+            {MOCK_UPCOMING_MEET.time} ~ the link lands in your inbox an hour
+            before.
           </p>
+          <div className="card-icon-row">
+            <Video size={18} />
+            <span>Details coming to your email</span>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+      )}
+      <div className="glass-card home-card">
+        <div className="search-card-head">
+          <div>
+            <span className="card-tag">{searching ? "Searching" : "Idle"}</span>
+            <h2 className="card-title">
+              {searching ? "We're out there looking" : "Ready when you are"}
+            </h2>
+          </div>
+          <button
+            type="button"
+            className={`search-toggle ${searching ? "on" : "off"}`}
+            role="switch"
+            aria-checked={searching}
+            onClick={() => setSearching(!searching)}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            <span className="search-toggle-knob" />
+          </button>
         </div>
-      </main>
+        <p className="card-subtext">
+          {searching
+            ? "This isn't instant - we'll email you the second something clicks."
+            : "Flip the switch and we'll go find someone interesting."}
+        </p>
+        {searching && (
+          <p className="live-counter"> 500+ actively looking for meets</p>
+        )}
+      </div>
+      <div className="glass-card home-card">
+        <h2 className="card-title">{CONNECTS_FOUND} connects found</h2>
+        <p className="card-subtext">People worth talking to. Go pick a time.</p>
+        <Button href="/connects" icon={<ArrowRight size={16} />}>
+          Talk to them
+        </Button>
+      </div>
     </div>
   );
 }

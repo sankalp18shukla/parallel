@@ -1,16 +1,21 @@
-export default function VideoBackground({ children }: { children: React.ReactNode }) {
+"use client";
+import { useState } from "react";
+
+
+export default function VideoBackground() {
+    const [loaded, setLoaded] = useState(false);
     return (
         <div className = "video-bg-wrap">
             <video
-                className="video-bg"
-                src="/cloudspace-1.mp4"
+                className={`video-bg ${loaded ? "loaded" : ""}`}
+                src="/water.mp4"
                 autoPlay
                 muted
                 loop
                 playsInline
+                onLoadedData={() => setLoaded(true)}
             />
             <div className="video-bg-tint"/>
-            {children}
         </div>
     );
 }

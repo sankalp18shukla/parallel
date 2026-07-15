@@ -42,5 +42,4 @@ export default function Button({ children, icon, href, onClick, type = "button",
             {content}
         </button>
     );
-
 }

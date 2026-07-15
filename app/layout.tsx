@@ -2,6 +2,7 @@ import type {Metadata} from "next";
 import { Poppins, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 import VideoBackground from "@/components/layout/VideoBackground";
+import GlassFilter from "@/components/layout/GlassFilter";
 
 const poppins = Poppins({
   subsets : ["latin"],
@@ -29,9 +30,9 @@ export default function RootLayout({
   return (
     <html lang="en" className= {`${poppins.variable} ${instrumentSerif.variable}`}>
       <body>
-        <VideoBackground>
-          {children}
-        </VideoBackground>
+        <VideoBackground />
+        <GlassFilter />
+        {children}
       </body>
     </html>
   );
