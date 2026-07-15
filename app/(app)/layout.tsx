@@ -10,9 +10,15 @@ const VIDEO_BY_ROUTE: Record<string, {src: string; tint: number }> ={
     "/profile" : { src: "/space.mp4", tint : 0.55 },
 };
 
+function getVideoConfig(pathname: string) {
+    if (pathname.startsWith("/profile")) return { src: "/space.mp4", tint: 0.55 };
+    if (pathname.startsWith("/connects")) return { src: "/flower.mp4", tint: 0.15};
+    return { src: "/water.mp4", tint: 0.45 };
+}
+
 export default function AppLayout({ children} : { children: React.ReactNode }) {
     const pathname = usePathname();
-    const video = VIDEO_BY_ROUTE[pathname] ?? VIDEO_BY_ROUTE["/"];
+    const video = getVideoConfig(pathname);
 
     return (
         <div className = "app-shell">

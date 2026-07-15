@@ -26,6 +26,7 @@ export default function ConnectsPage() {
               <Calendar size={16} />
             </div>
             <span className="card-tag">Confirmed</span>
+            <div className="card-divider" />
             <p className="card-title small">{item.when}</p>
           </div>
         ))}
@@ -53,6 +54,7 @@ export default function ConnectsPage() {
               <Clock size={14} />
               <span className="card-tag muted">{item.when}</span>
             </div>
+            <div className="card-divider" />
             <p className="card-subtext">{item.note}</p>
           </div>
         ))}

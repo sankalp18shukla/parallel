@@ -23,6 +23,7 @@ export default function HomePage() {
           <h2 className="card-title">
             You're on for {MOCK_UPCOMING_MEET.date}
           </h2>
+          <div className="card-divider" />
           <p className="card-subtext">
             {MOCK_UPCOMING_MEET.time} ~ the link lands in your inbox an hour
             before.
