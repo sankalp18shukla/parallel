@@ -144,7 +144,7 @@ export default function ChatPage() {
             Pick a time ({myTimezone})
             <input
               type="datetime-local"
-              className="glass-input auth-input"
+              className="glass-input auth-input time-picker-input"
               value={proposedTime}
               onChange={(e) => setProposedTime(e.target.value)}
             />

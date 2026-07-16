@@ -9,7 +9,6 @@ const PROFILE = {
 const FEEDBACK = [
     { id: 1, name: "Aditi R.", note: "Great energy, showed up on time, would talk again.", visible: true },
     { id: 2, name: "Rohan K", note: "dude was sharp man great guy", visible: true },
-    { id: 3, name: "Someone", note: "dude was xyzjsjdhksnknk", visible: false },
 ];
 
 export default function ProfilePage() {
@@ -45,11 +44,13 @@ export default function ProfilePage() {
                     <MessageSquare size={18} />
                 </div>
                 <h2 className="card-title">What people said</h2>
+                {FEEDBACK.length === 0 && (
+                    <p className="empty-note">Nothing yet - your first meet will change that.</p>
+                )}
                 {FEEDBACK.map((f) => (
                     <div key={f.id} className = "feedback-item">
-                        <p className="card-title small">{f.visible ? f.name : "Anonymous"}</p>
+                        <p className="card-title small">{f.name}</p>
                         <p className="card-subtext">{f.note}</p>
-                        <span className="card-tag muted">{f.visible ? "Shared with you" : "Kept private by them"}</span>
                     </div>
                 ))}
             </div>
