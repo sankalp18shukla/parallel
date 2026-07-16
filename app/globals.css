@@ -6,7 +6,7 @@
 
   --color-bg: #050506;
   --color-text: #ffffff;
-  --color-text-muted: rgba(255, 255, 255, 0.55);
+  --color-text-muted: rgba(255, 255, 255, 0.9);
   --color-border: rgba(255, 255, 255, 0.14);
 
   --glass-nav-bg: rgba(20, 24, 28, 0.45);
@@ -354,7 +354,7 @@ h1, h2, h3 {
   display: flex;
   flex-direction: column;
   gap: 15px;
-  --card-bg-opacity: 0.55;
+  --card-bg-opacity: 0.75;
 }
 
 .card-icon-badge {
@@ -421,8 +421,9 @@ h1, h2, h3 {
 .feedback-item:first-child { border-top: none; margin-top: 0; padding-top: 0; }
 
 .card-divider {
-  border-top: 1px solid var(--color-border);
+  border-top: 1px solid rgba(255, 255, 255, 0.28);
   margin: 14px 0;
+  width: 100%;
 }
 
 .bottom-nav {
@@ -472,19 +473,21 @@ h1, h2, h3 {
   height: 24px;
 }
 
-.connect-page {
-  --card-bg-opacity: 0.35;
-}
-
 .profile-page {
-  --card-bg-opacity: 0.55;
+  --card-bg-opacity: 0.6;
 }
 
-.connects-page,
+.connects-page {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  --card-bg-opacity: 0.6;
+}
+
 .profile-page {
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 15px;
 }
 
 .card-icon-badge.small {
@@ -503,17 +506,23 @@ h1, h2, h3 {
 }
 
 .chat-header {
-  position: sticky;
-  top: 0;
-  z-index: 10;
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform:translateX(-50%);
+  z-index: 20;
+  width: calc(100% - 48px);
+  max-width: 560px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 20px;
+  padding: 12px 20px;
+  border-radius: 100px;
 }
 
 .chat-header-title { font-family: var(--font-display); font-size: 1.1rem;}
-.chat-back, .chat-propose-btn {
+
+.chat-back {
   background: none;
   border: none;
   color: var(--color-text);
@@ -521,12 +530,26 @@ h1, h2, h3 {
   display: flex;
 }
 
+.chat-caution {
+  margin: 90px 16px 12px;
+  padding: 16px 18px;
+}
+
+.chat-system-msg {
+  align-self: center;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 100px;
+}
+
 .chat-messages {
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding: 20px;
+  padding: 0 20px 20px;
   max-width: 560px;
   width: 100%;
   margin: 0 auto;
@@ -548,6 +571,37 @@ h1, h2, h3 {
 .chat-bubble.me {
   align-items: flex-end;
   background: rgba(140, 180, 220, 0.35);
+}
+
+.chat.proposal-card {
+  align-self: center;
+  width: 100%;
+  padding: 18px 20px;
+}
+
+.chat-proposal-panel {
+  margin: 0 16px 12px;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.chat-toolbar {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.chat-propose-toggle {
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  padding: 8px 18px;
+  border-radius: 100px;
+  cursor: pointer;
 }
 
 .chat-input-row {
@@ -583,3 +637,4 @@ h1, h2, h3 {
   color: var(--color-text);
   cursor: pointer;
 }
+

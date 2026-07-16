@@ -28,6 +28,7 @@ export default function ConnectsPage() {
             <span className="card-tag">Confirmed</span>
             <div className="card-divider" />
             <p className="card-title small">{item.when}</p>
+            <Button href={`/connects/chat/${item.id}`}>Keep talking</Button>
           </div>
         ))}
       </section>
@@ -35,11 +36,11 @@ export default function ConnectsPage() {
       <section className="connects-section">
         <h2 className="section-label">New connects</h2>
         {NEW_CONNECTS.map((item) => (
-          <div key={item.id} className="glass-card connects-item">
+          <div key={item.id} className="glass-card connect-item">
             <p className="card-subtext">{item.blurb}</p>
             <Button
               icon={<MessageCircle size={16} />}
-              onClick={() => console.log("open chat", item.id)}
+              href={`/connects/chat/${item.id}`}
             >
               Fix a time
             </Button>
