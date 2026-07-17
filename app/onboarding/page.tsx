@@ -22,7 +22,7 @@ export default function OnboardingPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    async function checkAccess() {
+    async function loadExisting() {
       const { data: userData } = await supabase.auth.getUser();
       if (!userData.user) {
         router.push("/login");
@@ -31,16 +31,22 @@ export default function OnboardingPage() {
 
       const { data: existing } = await supabase
         .from("profiles")
-        .select("id")
+        .select("description, companies, timezone, twitter, linkedin, email_opt_in")
         .eq("id", userData.user.id)
         .maybeSingle();
 
       if (existing) {
-        router.push("/");
-        return;
+        setForm({
+          description: existing.description ?? "",
+          companies: existing.companies ?? "",
+          timezone: existing.timezone ?? "",
+          twitter: existing.twitter ?? "",
+          linkedin: existing.linkedin ?? "",
+          emailOptIn: existing.email_opt_in ?? false,
+        });
       }
     }
-    checkAccess();
+    loadExisting();
   }, []);
 
   function update<K extends keyof typeof form>(key: K, value: (typeof form)[K]) {

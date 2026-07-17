@@ -1,36 +1,68 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+<img src="./public/parallel_black.png" alt="parallel" width="180">
 
-## Getting Started
+## fuck around, find out
 
-First, run the development server:
+the more you explore, the better your odds of finding something great. cast a wider net and the chances something in it is worth keeping go up. same with people, meet more of them and your odds of meeting a genuinely great one go up too.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+parallel connects you with a random stranger in your own field and lets that surprise do its thing.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+live demo: [add your deployed url here]
+github: [add your repo url here]
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+this isn't just a hackathon project. i've had this idea in my head for a long time. hack club horizons is what actually pushed me to sit down, build it, and ship a real version.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## why i built this
 
-## Learn More
+i've been to a bunch of networking events, and the best part was never the talks, it was who i randomly ended up meeting. some of those people are still around years later. but networking events are narrow, a startup event gets you startup people, a fashion event gets you fashion people. you're only ever surprised within a small box.
 
-To learn more about Next.js, take a look at the following resources:
+parallel is that same idea without the box. you get connected with someone in your field, but you don't know who they are going in, no name, no company, just a short description. you chat only long enough to agree on a time, then meet live online, and only then find out who you were actually talking to.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+this is also the first real backend i've built end to end, auth, a full schema, row level security, realtime chat, all of it. i've mostly worked with firebase before, so this is my first time building on supabase too.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## what it does
 
-## Deploy on Vercel
+- you sign up and fill out a short profile: what you do, years of experience, timezone. no name is ever collected.
+- you get connected with someone in your field.
+- you chat with them just to agree on a time to meet. the chat is explicitly for scheduling only, nothing else.
+- when you propose a time, it's shown to the other person converted into their own timezone automatically. both people have to confirm before it locks in.
+- once confirmed, you both get a meeting link and a time. you meet as strangers.
+- after the meet, you can leave feedback for the other person, visible on their profile.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## how it works
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**auth** — supabase auth, email/password and google oauth.
+
+**database** — supabase postgres, with row level security policies on every table so people can only see and edit what they're supposed to.
+
+**matching** — there are two systems built for this. a keyword-based text matching system, which is what's actually running right now, compares two people's descriptions, strips out filler words, and scores them by how many meaningful words they share. an ai-based matching system is also fully coded but not currently wired up live, it would use an llm to judge compatibility instead of just counting shared words.
+
+**realtime chat** — built on supabase realtime, so messages show up instantly on both sides without a refresh.
+
+**meeting confirmation** — both people propose and confirm a time inside the chat, each seeing it in their own local timezone.
+
+**we are intentionally not using paid ai apis or email apis in this build. both cost money to run, and for a hackathon demo we didn't want to burn api credits or risk something breaking mid-review because of a rate limit or a billing issue. the code for both is fully written and sitting in the repo (email through resend, ai matching through openai), just switched off. turning either one on is a one line change.**
+
+## screenshots
+
+1. `login.png` — login screen
+2. `onboarding.png` — profile setup
+3. `home.png` — home tab
+4. `connects.png` — connects tab
+5. `profile.png` — profile tab
+6. `chat.png` — chat and scheduling
+
+## tech stack
+
+- next.js (app router), typescript
+- supabase — auth, postgres, row level security, realtime
+- resend — email (currently disabled, see above)
+- openai — ai matching (currently disabled, see above)
+- hand-written css, no ui framework
+- lucide icons
+- deployed on vercel
+
+## status
+
+the core loop works end to end: sign up, get connected with someone in your field, chat to agree on a time, confirm a meeting, and go talk to a stranger you knew nothing about going in.
+
+this is version one. once this is through review, we're building out a full landing page and taking it from here, this is going to be the coolest thing.
