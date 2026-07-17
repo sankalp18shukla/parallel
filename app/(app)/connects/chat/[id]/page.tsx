@@ -1,80 +1,120 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { FormEvent } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Send } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
 
-const MOCK_MESSAGES = [
-  { id: 1, from: "them" as const, type: "text" as const, text: "Hey! Saw we're both into distributed systems." },
-  { id: 2, from: "me" as const, type: "text" as const, text: "Yeah, been deep in Kafka lately. You?" },
-];
-
-// Mock — this will come from their real profile timezone once backend exists
-const THEIR_TIMEZONE = "America/New_York";
-
-type Proposal = {
-  iso: string;
-  myTz: string;
-  confirmedByMe: boolean;
-  confirmedByThem: boolean;
+type Message = {
+  id: string;
+  sender_id: string;
+  type: "text" | "proposal" | "system";
+  content: string | null;
+  proposal_time: string | null;
+  created_at: string;
 };
-
-type Message =
-  | { id: number; from: "me" | "them"; type: "text"; text: string }
-  | { id: number; from: "me" | "them"; type: "proposal"; proposal: Proposal }
-  | { id: number; from: "system"; type: "system"; text: string };
 
 export default function ChatPage() {
   const router = useRouter();
   const params = useParams();
-  const [messages, setMessages] = useState<Message[]>(MOCK_MESSAGES);
+  const supabase = createClient();
+  const connectId = params.id as string;
+
+  const [messages, setMessages] = useState<Message[]>([]);
   const [draft, setDraft] = useState("");
+  const [myId, setMyId] = useState("");
   const [showProposeForm, setShowProposeForm] = useState(false);
   const [proposedTime, setProposedTime] = useState("");
 
   const myTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-  function sendMessage(e: FormEvent) {
+  useEffect(() => {
+    async function init() {
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData.user) return;
+      setMyId(userData.user.id);
+
+      const { data } = await supabase
+        .from("messages")
+        .select("*")
+        .eq("connect_id", connectId)
+        .order("created_at", { ascending: true });
+      setMessages(data ?? []);
+    }
+    init();
+
+    // Naya message aane pe real-time update
+    const channel = supabase
+      .channel(`messages-${connectId}`)
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "messages", filter: `connect_id=eq.${connectId}` },
+        (payload) => {
+          setMessages((prev) => [...prev, payload.new as Message]);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [connectId]);
+
+  async function sendMessage(e: FormEvent) {
     e.preventDefault();
     if (!draft.trim()) return;
-    setMessages((m) => [...m, { id: Date.now(), from: "me", type: "text", text: draft }]);
+    await supabase.from("messages").insert({
+      connect_id: connectId,
+      sender_id: myId,
+      type: "text",
+      content: draft,
+    });
     setDraft("");
   }
 
-  function sendProposal() {
+  async function sendProposal() {
     if (!proposedTime) return;
-    setMessages((m) => [
-      ...m,
-      {
-        id: Date.now(),
-        from: "me",
-        type: "proposal",
-        proposal: {
-          iso: new Date(proposedTime).toISOString(),
-          myTz: myTimezone,
-          confirmedByMe: true,
-          confirmedByThem: false,
-        },
-      },
-    ]);
+    await supabase.from("messages").insert({
+      connect_id: connectId,
+      sender_id: myId,
+      type: "proposal",
+      content: `Proposed in ${myTimezone}`,
+      proposal_time: new Date(proposedTime).toISOString(),
+    });
     setShowProposeForm(false);
     setProposedTime("");
   }
 
-  function simulateTheirConfirm(msgId: number) {
-    setMessages((m) =>
-      m.map((msg) =>
-        msg.id === msgId && msg.type === "proposal"
-          ? { ...msg, proposal: { ...msg.proposal, confirmedByThem: true } }
-          : msg
-      )
-    );
-    setMessages((m) => [
-      ...m,
-      { id: Date.now(), from: "system", type: "system", text: "Meeting confirmed. Check your email for the link." },
-    ]);
+  async function confirmMeeting(msg: Message) {
+    if (!msg.proposal_time) return;
+
+    await supabase.from("connects").update({ status: "scheduled" }).eq("id", connectId);
+    await supabase.from("meetings").insert({
+      connect_id: connectId,
+      scheduled_time: msg.proposal_time,
+      meet_link: "https://meet.google.com/new",
+    });
+    await supabase.from("messages").insert({
+      connect_id: connectId,
+      sender_id: myId,
+      type: "system",
+      content: "Meeting confirmed. Check your email for the link.",
+    });
+
+    await fetch("/api/notify-meeting", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ connectId, scheduledTime: msg.proposal_time }),
+    });
+
+    await fetch("/api/notify-meeting", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ connectId, scheduledTime: msg.proposal_time }),
+});
   }
+  
 
   function formatForTz(iso: string, tz: string) {
     return new Date(iso).toLocaleString("en-US", {
@@ -93,7 +133,7 @@ export default function ChatPage() {
         <button className="chat-back" onClick={() => router.push("/connects")}>
           <ArrowLeft size={20} />
         </button>
-        <span className="chat-header-title">Chat · #{String(params.id).slice(0, 6)}</span>
+        <span className="chat-header-title">Chat · #{connectId.slice(0, 6)}</span>
         <div style={{ width: 20 }} />
       </div>
 
@@ -101,38 +141,32 @@ export default function ChatPage() {
         <p className="warning-title">Before you continue</p>
         <p className="warning-text">
           This chat is only for fixing a time to meet. Don't share names, contact info, or anything
-          identifying — that's what breaks the whole system. Chats aren't encrypted and can be
-          reviewed. Get caught working around this, and it's a permanent ban.
+          identifying. Chats aren't encrypted and can be reviewed. Get caught working around this,
+          and it's a permanent ban.
         </p>
       </div>
 
       <div className="chat-messages">
         {messages.map((m) => {
           if (m.type === "system") {
-            return <div key={m.id} className="chat-system-msg">{m.text}</div>;
+            return <div key={m.id} className="chat-system-msg">{m.content}</div>;
           }
-          if (m.type === "proposal") {
-            const bothConfirmed = m.proposal.confirmedByMe && m.proposal.confirmedByThem;
+          if (m.type === "proposal" && m.proposal_time) {
             return (
               <div key={m.id} className="chat-proposal-card glass-card">
                 <p className="card-tag">Proposed time</p>
-                <p className="card-title small">{formatForTz(m.proposal.iso, myTimezone)} (your time)</p>
-                <p className="card-subtext">
-                  {formatForTz(m.proposal.iso, THEIR_TIMEZONE)} (their time)
-                </p>
-                {bothConfirmed ? (
-                  <span className="card-tag muted">Both confirmed</span>
-                ) : (
-                  <button className="btn" onClick={() => simulateTheirConfirm(m.id)}>
-                    Simulate: they confirm (demo only)
+                <p className="card-title small">{formatForTz(m.proposal_time, myTimezone)} (your time)</p>
+                {m.sender_id !== myId && (
+                  <button className="chat-confirm-btn" onClick={() => confirmMeeting(m)}>
+                    Confirm this time
                   </button>
                 )}
               </div>
             );
           }
           return (
-            <div key={m.id} className={`chat-bubble ${m.from === "me" ? "me" : "them"}`}>
-              {m.text}
+            <div key={m.id} className={`chat-bubble ${m.sender_id === myId ? "me" : "them"}`}>
+              {m.content}
             </div>
           );
         })}

@@ -5,30 +5,67 @@ import { ArrowRight, Video, Calendar, Users } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { createClient } from "@/lib/supabase/client";
 
-const MOCK_UPCOMING_MEET = {
-  scheduled: true,
-  date: "Thu, 17 Jul",
-  time: "6:30 PM",
-};
-
 export default function HomePage() {
   const supabase = createClient();
   const [searching, setSearching] = useState(false);
   const [matchMessage, setMatchMessage] = useState("");
   const [loadingMatch, setLoadingMatch] = useState(false);
+  const [upcomingMeet, setUpcomingMeet] = useState<{
+    date: string;
+    time: string;
+  } | null>(null);
+  const [newConnectsCount, setNewConnectsCount] = useState(0);
 
   useEffect(() => {
-    async function loadStatus() {
+    async function loadData() {
       const { data: userData } = await supabase.auth.getUser();
       if (!userData.user) return;
-      const { data } = await supabase
+      const myId = userData.user.id;
+
+      const { data: statusData } = await supabase
         .from("search_status")
         .select("is_searching")
-        .eq("user_id", userData.user.id)
+        .eq("user_id", myId)
         .single();
-      setSearching(data?.is_searching ?? false);
+      setSearching(statusData?.is_searching ?? false);
+
+      const { data: myConnects } = await supabase
+        .from("connects")
+        .select("id, status")
+        .or(`user_a.eq.${myId},user_b.eq.${myId}`);
+
+      const scheduledConnect = (myConnects ?? []).find(
+        (c) => c.status === "scheduled",
+      );
+      if (scheduledConnect) {
+        const { data: meeting } = await supabase
+          .from("meetings")
+          .select("scheduled_time")
+          .eq("connect_id", scheduledConnect.id)
+          .single();
+
+        if (meeting?.scheduled_time) {
+          const d = new Date(meeting.scheduled_time);
+          setUpcomingMeet({
+            date: d.toLocaleDateString(undefined, {
+              weekday: "short",
+              month: "short",
+              day: "numeric",
+            }),
+            time: d.toLocaleTimeString(undefined, {
+              hour: "numeric",
+              minute: "2-digit",
+            }),
+          });
+        }
+      }
+
+      const newCount = (myConnects ?? []).filter(
+        (c) => c.status === "new",
+      ).length;
+      setNewConnectsCount(newCount);
     }
-    loadStatus();
+    loadData();
   }, []);
 
   async function toggleSearch() {
@@ -45,19 +82,9 @@ export default function HomePage() {
       updated_at: new Date().toISOString(),
     });
 
+    // Automatic matching abhi ke liye off hai — sirf admin panel se manual connect banega
     if (newValue) {
-      setLoadingMatch(true);
-      const res = await fetch("/api/match", { method: "POST" });
-      const result = await res.json();
-      setLoadingMatch(false);
-
-      if (result.matched) {
-        setMatchMessage("Found someone! Check your Connects tab.");
-      } else if (result.reason === "daily_limit_reached") {
-        setMatchMessage("You've hit today's connect limit. Check back tomorrow.");
-      } else {
-        setMatchMessage("No match yet — we'll keep looking and email you.");
-      }
+      setMatchMessage("We'll email you the moment something clicks.");
     }
   }
 
@@ -65,16 +92,16 @@ export default function HomePage() {
     <div className="home-page">
       <h1 className="page-heading">Home</h1>
 
-      {MOCK_UPCOMING_MEET.scheduled && (
+      {upcomingMeet && (
         <div className="glass-card home-card accent-primary">
           <div className="card-icon-badge">
             <Calendar size={18} />
           </div>
           <span className="card-tag">Lined up</span>
-          <h2 className="card-title">You're on for {MOCK_UPCOMING_MEET.date}</h2>
+          <h2 className="card-title">You're on for {upcomingMeet.date}</h2>
           <div className="card-divider" />
           <p className="card-subtext">
-            {MOCK_UPCOMING_MEET.time} · the link lands in your inbox an hour before.
+            {upcomingMeet.time} · the link lands in your inbox an hour before.
           </p>
           <div className="card-icon-row">
             <Video size={16} />
@@ -107,20 +134,27 @@ export default function HomePage() {
           {loadingMatch
             ? "Checking for a match…"
             : searching
-            ? "This isn't instant — we'll email you the second something clicks."
-            : "Flip the switch and we'll go find someone interesting."}
+              ? "This isn't instant; we'll email you the second something clicks."
+              : "Flip the switch and we'll go find someone interesting."}
         </p>
 
         {matchMessage && <p className="live-counter">{matchMessage}</p>}
-        {searching && !matchMessage && <p className="live-counter">500+ actively looking for meets</p>}
       </div>
 
       <div className="glass-card home-card accent-secondary">
         <div className="card-icon-badge">
           <Users size={18} />
         </div>
-        <h2 className="card-title">Connects</h2>
-        <p className="card-subtext">People worth talking to. Go pick a time.</p>
+        <h2 className="card-title">
+          {newConnectsCount > 0
+            ? `${newConnectsCount} connects found`
+            : "Connects"}
+        </h2>
+        <p className="card-subtext">
+          {newConnectsCount > 0
+            ? "People worth talking to. Go pick a time."
+            : "Nothing new yet."}
+        </p>
         <Button href="/connects" icon={<ArrowRight size={16} />}>
           Talk to them
         </Button>

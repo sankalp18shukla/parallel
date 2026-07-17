@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import Logo from "@/components/ui/Logo";
 import Button from "@/components/ui/Button";
 import VideoBackground from "@/components/layout/VideoBackground";
+
 
 export default function LoginPage() {
   const router = useRouter();
@@ -13,6 +14,19 @@ export default function LoginPage() {
 
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [email, setEmail] = useState("");
+  useEffect(() => {
+    async function checkExisting() {
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData.user) return;
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("id", userData.user.id)
+        .maybeSingle();
+      router.push(profile ? "/" : "/onboarding");
+    }
+    checkExisting();
+  }, []);
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);

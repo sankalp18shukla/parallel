@@ -52,7 +52,7 @@ export default function AdminPage() {
 
   return (
     <div style={{ padding: 40, color: "white", fontFamily: "sans-serif" }}>
-      <h1>Admin — Manual Matching</h1>
+      <h1>Admin: Manual Matching</h1>
       <p>{message}</p>
       <p>Select exactly 2 people, then click Connect.</p>
 

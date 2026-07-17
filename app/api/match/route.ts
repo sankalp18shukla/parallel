@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import OpenAI from "openai";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
+import { sendConnectFoundEmail } from "@/lib/email";
 
 const MATCHING_STRATEGY: "keyword" | "ai" = "keyword";
 
@@ -137,6 +138,12 @@ export async function POST() {
   if (error) {
     return NextResponse.json({ matched: false, reason: "db_error" });
   }
+
+  const { data: myUser } = await admin.auth.admin.getUserById(myId);
+  const { data: theirUser } = await admin.auth.admin.getUserById(bestMatch.id);
+
+  if (myUser?.user?.email) await sendConnectFoundEmail(myUser.user.email);
+  if (theirUser?.user?.email) await sendConnectFoundEmail(theirUser.user.email);
 
   return NextResponse.json({ matched: true, connect: newConnect });
 }
