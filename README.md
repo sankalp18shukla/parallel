@@ -6,8 +6,8 @@ the more you explore, the better your odds of finding something great. cast a wi
 
 parallel connects you with a random stranger in your own field and lets that surprise do its thing.
 
-live demo: [add your deployed url here]
-github: [add your repo url here]
+live link: [link](https://findparallel.vercel.app/)
+demo video: [link](https://youtube.com/shorts/sYYVBo1VCBs?feature=share)
 
 this isn't just a hackathon project. i've had this idea in my head for a long time. hack club horizons is what actually pushed me to sit down, build it, and ship a real version.
 
@@ -42,14 +42,29 @@ this is also the first real backend i've built end to end, auth, a full schema, 
 
 **we are intentionally not using paid ai apis or email apis in this build. both cost money to run, and for a hackathon demo we didn't want to burn api credits or risk something breaking mid-review because of a rate limit or a billing issue. the code for both is fully written and sitting in the repo (email through resend, ai matching through openai), just switched off. turning either one on is a one line change.**
 
+## on ai use
+
+roughly 20 to 25 percent of this project was built with ai help, not more than that. the design decisions, the overall architecture, and the direction of the product were mine. ai helped most with backend implementation, which is an area i'm still learning, a first pass on the icons, which i'll be replacing with my own custom set in future versions, and debugging near the end when time was tight.
+
 ## screenshots
 
-1. `login.png` — login screen
-2. `onboarding.png` — profile setup
-3. `home.png` — home tab
-4. `connects.png` — connects tab
-5. `profile.png` — profile tab
-6. `chat.png` — chat and scheduling
+### login
+![login screen](./public/login.png)
+
+### onboarding
+![onboarding screen](./public/onboarding.png)
+
+### home
+![home tab](./public/home.png)
+
+### connects
+![connects tab](./public/connects.png)
+
+### profile
+![profile tab](./public/profile.png)
+
+### chat
+![chat and scheduling](./public/chat.png)
 
 ## tech stack
 
@@ -65,4 +80,4 @@ this is also the first real backend i've built end to end, auth, a full schema, 
 
 the core loop works end to end: sign up, get connected with someone in your field, chat to agree on a time, confirm a meeting, and go talk to a stranger you knew nothing about going in.
 
-this is version one. once this is through review, we're building out a full landing page and taking it from here, this is going to be the coolest thing.
+this is version one. i will move even forward with this.
