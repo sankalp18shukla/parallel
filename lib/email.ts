@@ -1,8 +1,24 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const EMAILS_ENABLED = true; // demo record hone ke baad false kar dena
+
+function getResendClient() {
+  const key = process.env.RESEND_API_KEY;
+  if (!key) {
+    console.warn("RESEND_API_KEY missing — email will not send.");
+    return null;
+  }
+  return new Resend(key);
+}
 
 export async function sendConnectFoundEmail(toEmail: string) {
+  if (!EMAILS_ENABLED) {
+    console.log(`[DEMO] Would send "connect found" email to ${toEmail}`);
+    return;
+  }
+  const resend = getResendClient();
+  if (!resend) return;
+
   await resend.emails.send({
     from: "Parallel <onboarding@resend.dev>",
     to: toEmail,
@@ -12,6 +28,13 @@ export async function sendConnectFoundEmail(toEmail: string) {
 }
 
 export async function sendMeetingConfirmedEmail(toEmail: string, when: string, meetLink: string) {
+  if (!EMAILS_ENABLED) {
+    console.log(`[DEMO] Would send "meeting confirmed" email to ${toEmail}`);
+    return;
+  }
+  const resend = getResendClient();
+  if (!resend) return;
+
   await resend.emails.send({
     from: "Parallel <onboarding@resend.dev>",
     to: toEmail,
