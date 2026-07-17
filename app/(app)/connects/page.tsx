@@ -1,5 +1,5 @@
 "use client";
-
+export const dynamic = "force-dynamic";
 import { useState, useEffect } from "react";
 import { MessageCircle, Calendar, Clock } from "lucide-react";
 import Button from "@/components/ui/Button";
