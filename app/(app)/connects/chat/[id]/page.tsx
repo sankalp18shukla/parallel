@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import type { FormEvent } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, Send } from "lucide-react";
+import { ArrowLeft, Check, Send } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 type Message = {
@@ -26,14 +26,23 @@ export default function ChatPage() {
   const [myId, setMyId] = useState("");
   const [showProposeForm, setShowProposeForm] = useState(false);
   const [proposedTime, setProposedTime] = useState("");
+  const [connectStatus, setConnectStatus] = useState<string>("new");
+  const timeInputRef = useRef<HTMLInputElement>(null);
 
   const myTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   useEffect(() => {
-    async function init() {
+  async function init() {
       const { data: userData } = await supabase.auth.getUser();
       if (!userData.user) return;
       setMyId(userData.user.id);
+
+      const { data: connectData } = await supabase
+        .from("connects")
+        .select("status")
+        .eq("id", connectId)
+        .single();
+      setConnectStatus(connectData?.status ?? "new");
 
       const { data } = await supabase
         .from("messages")
@@ -44,14 +53,17 @@ export default function ChatPage() {
     }
     init();
 
-    // Naya message aane pe real-time update
     const channel = supabase
       .channel(`messages-${connectId}`)
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "messages", filter: `connect_id=eq.${connectId}` },
         (payload) => {
-          setMessages((prev) => [...prev, payload.new as Message]);
+          const newMsg = payload.new as Message;
+          setMessages((prev) => {
+            if (prev.some((m) => m.id === newMsg.id)) return prev;
+            return [...prev, newMsg];
+          });
         }
       )
       .subscribe();
@@ -64,13 +76,33 @@ export default function ChatPage() {
   async function sendMessage(e: FormEvent) {
     e.preventDefault();
     if (!draft.trim()) return;
-    await supabase.from("messages").insert({
-      connect_id: connectId,
+
+    const tempId = `temp-${Date.now()}`;
+    const optimisticMessage: Message = {
+      id: tempId,
       sender_id: myId,
       type: "text",
       content: draft,
-    });
+      proposal_time: null,
+      created_at: new Date().toISOString(),
+    };
+    setMessages((prev) => [...prev, optimisticMessage]);
     setDraft("");
+
+    const { data, error } = await supabase
+      .from("messages")
+      .insert({
+        connect_id: connectId,
+        sender_id: myId,
+        type: "text",
+        content: optimisticMessage.content,
+      })
+      .select()
+      .single();
+
+    if (!error && data) {
+      setMessages((prev) => prev.map((m) => (m.id === tempId ? data : m)));
+    }
   }
 
   async function sendProposal() {
@@ -86,10 +118,12 @@ export default function ChatPage() {
     setProposedTime("");
   }
 
-  async function confirmMeeting(msg: Message) {
+async function confirmMeeting(msg: Message) {
     if (!msg.proposal_time) return;
 
     await supabase.from("connects").update({ status: "scheduled" }).eq("id", connectId);
+    setConnectStatus("scheduled");
+
     await supabase.from("meetings").insert({
       connect_id: connectId,
       scheduled_time: msg.proposal_time,
@@ -107,14 +141,7 @@ export default function ChatPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ connectId, scheduledTime: msg.proposal_time }),
     });
-
-    await fetch("/api/notify-meeting", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ connectId, scheduledTime: msg.proposal_time }),
-});
   }
-  
 
   function formatForTz(iso: string, tz: string) {
     return new Date(iso).toLocaleString("en-US", {
@@ -126,6 +153,8 @@ export default function ChatPage() {
       minute: "2-digit",
     });
   }
+
+  if (!myId) return null;
 
   return (
     <div className="chat-page">
@@ -156,11 +185,12 @@ export default function ChatPage() {
               <div key={m.id} className="chat-proposal-card glass-card">
                 <p className="card-tag">Proposed time</p>
                 <p className="card-title small">{formatForTz(m.proposal_time, myTimezone)} (your time)</p>
-                {m.sender_id !== myId && (
-                  <button className="chat-confirm-btn" onClick={() => confirmMeeting(m)}>
-                    Confirm this time
-                  </button>
-                )}
+               {m.sender_id !== myId && connectStatus !== "scheduled" && (
+  <button className="chat-confirm-btn" onClick={() => confirmMeeting(m)}>
+   
+    Confirm this time
+  </button>
+)}
               </div>
             );
           }
@@ -172,38 +202,42 @@ export default function ChatPage() {
         })}
       </div>
 
-      {showProposeForm && (
-        <div className="chat-propose-panel glass-card">
-          <label className="auth-label">
-            Pick a time ({myTimezone})
-            <input
-              type="datetime-local"
-              className="glass-input auth-input time-picker-input"
-              value={proposedTime}
-              onChange={(e) => setProposedTime(e.target.value)}
-            />
-          </label>
-          <button className="btn btn-full" onClick={sendProposal}>Send proposal</button>
+      <div className="chat-bottom-bar">
+        {showProposeForm && (
+          <div className="chat-propose-panel glass-card">
+            <label className="auth-label">
+              Pick a time ({myTimezone})
+              <input
+                ref={timeInputRef}
+                type="datetime-local"
+                className="glass-input auth-input time-picker-input"
+                value={proposedTime}
+                onChange={(e) => setProposedTime(e.target.value)}
+                onClick={() => timeInputRef.current?.showPicker?.()}
+              />
+            </label>
+            <button className="btn btn-full" onClick={sendProposal}>Send proposal</button>
+          </div>
+        )}
+
+        <div className="chat-toolbar">
+          <button className="chat-propose-toggle" onClick={() => setShowProposeForm((v) => !v)}>
+            {showProposeForm ? "Cancel" : "Propose a time"}
+          </button>
         </div>
-      )}
 
-      <div className="chat-toolbar">
-        <button className="chat-propose-toggle" onClick={() => setShowProposeForm((v) => !v)}>
-          {showProposeForm ? "Cancel" : "Propose a time"}
-        </button>
+        <form className="chat-input-row glass-nav" onSubmit={sendMessage}>
+          <input
+            className="chat-input"
+            placeholder="Type a message…"
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+          />
+          <button type="submit" className="chat-send-btn">
+            <Send size={18} />
+          </button>
+        </form>
       </div>
-
-      <form className="chat-input-row glass-nav" onSubmit={sendMessage}>
-        <input
-          className="chat-input"
-          placeholder="Type a message…"
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-        />
-        <button type="submit" className="chat-send-btn">
-          <Send size={18} />
-        </button>
-      </form>
     </div>
   );
 }

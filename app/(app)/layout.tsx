@@ -28,6 +28,8 @@ export default function AppLayout({ children} : { children: React.ReactNode }) {
    const supabase = createClient();
    const [checking, setChecking] = useState(true);
    const video = getVideoConfig(pathname);
+   const isChatPage = pathname.includes("/chat/");
+
 
 
    useEffect(() => {
@@ -43,11 +45,11 @@ export default function AppLayout({ children} : { children: React.ReactNode }) {
    if (checking) return null;
 
 
-   return (
-       <div className = "app-shell">
-           <VideoBackground src={video.src} tint={video.tint}/>
-           <div className="app-content">{children}</div>
-           <BottomNav />
-       </div>
-   );
+ return (
+    <div className="app-shell">
+      <VideoBackground src={video.src} tint={video.tint} />
+      <div className="app-content">{children}</div>
+      {!isChatPage && <BottomNav />}
+    </div>
+  );
 }
