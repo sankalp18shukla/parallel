@@ -1,4 +1,8 @@
-import { Briefcase, ShieldCheck, MessageSquare } from "lucide-react";
+"use client";
+
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
+import { Briefcase, ShieldCheck, MessageSquare, LogOut } from "lucide-react";
 
 const PROFILE = {
     description: "10 years building product at early-stage startups.",
@@ -12,6 +16,13 @@ const FEEDBACK = [
 ];
 
 export default function ProfilePage() {
+        const router = useRouter();
+    const supabase = createClient();
+
+    async function handleLogout() {
+        await supabase.auth.signOut();
+        router.push("/login");
+    }
     return (
         <div className="profile-page">
             <h1 className="page-heading">Profile</h1>
@@ -54,6 +65,10 @@ export default function ProfilePage() {
                     </div>
                 ))}
             </div>
+            <button className="btn btn-full btn-standalone" onClick={handleLogout}>
+                <LogOut size={16} className="btn-icon" style={{ marginRight: 8 }} />
+                Log out
+            </button>
         </div>
     );
 }

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import Logo from "@/components/ui/Logo";
 import Button from "@/components/ui/Button";
+import VideoBackground from "@/components/layout/VideoBackground";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -48,6 +49,7 @@ export default function LoginPage() {
 
   return (
     <main className="auth-page">
+    <VideoBackground src="/sky.mp4" tint={0.4} />
       <div className="auth-card glass-card">
         <Logo />
         <h1 className="auth-heading">
